@@ -1,0 +1,2 @@
+influxdb==5.3.1
+xmltodict==0.13.0
