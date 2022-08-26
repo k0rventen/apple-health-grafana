@@ -1,0 +1,18 @@
+services:
+  grafana:
+    image: grafana/grafana
+    ports:
+    - 3000:3000
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=health
+    volumes:
+    - ./provisioning:/etc/grafana/provisioning
+  influx:
+    image: influxdb:1.8
+    environment:
+      - INFLUXDB_DB=health
+  ingester:
+    build: ingester/
+    volumes:
+    - <local_export.xml_path>:/export.xml
