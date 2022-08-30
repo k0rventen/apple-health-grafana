@@ -36,9 +36,15 @@ def format_record(record):
         }
     }
 
-print("waiting 5s before starting")
-time.sleep(5)
 client = InfluxDBClient('influx', 8086, database='health')
+while True:
+    try:
+        client.ping()
+        break
+    except:
+        print("waiting on influx to be ready..")
+        time.sleep(1)
+
 client.drop_database("health")
 client.create_database("health")
 
@@ -57,7 +63,7 @@ for _, elem in etree.iterparse("/export.xml"):
             client.write_points(formatted_records,time_precision="s")
             formatted_records.clear()
             print("inserted",total_count,"records")
-        
+
 # push the rest
 client.write_points(formatted_records,time_precision="s")
 print("Total number of records:",total_count+len(formatted_records))
