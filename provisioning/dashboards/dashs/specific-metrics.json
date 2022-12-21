@@ -24,16 +24,316 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
+  "id": 2,
   "links": [],
   "liveNow": false,
   "panels": [
+    {
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 21,
+      "title": "Yearly Activity",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influx"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "super-light-blue",
+                "value": null
+              },
+              {
+                "color": "light-blue",
+                "value": 100
+              },
+              {
+                "color": "blue",
+                "value": 1000
+              },
+              {
+                "color": "semi-dark-blue",
+                "value": 10000
+              },
+              {
+                "color": "dark-blue",
+                "value": 100000
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 1
+      },
+      "id": 23,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "value_and_name"
+      },
+      "pluginVersion": "9.3.2",
+      "targets": [
+        {
+          "alias": "Cycled distance this year ($tag_unit)",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influx"
+          },
+          "groupBy": [],
+          "measurement": "BodyMass",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT sum(\"value\") FROM \"DistanceCycling\" WHERE time > now() - 365d GROUP BY \"unit\"",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Distance swimmed this year (km)",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influx"
+          },
+          "groupBy": [],
+          "hide": false,
+          "measurement": "DistanceSwimming",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT sum(\"value\")/1000 FROM \"DistanceSwimming\" WHERE time > now() - 365d GROUP BY \"unit\"",
+          "rawQuery": true,
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Walked/ran distance this year ($tag_unit)",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influx"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "unit"
+              ],
+              "type": "tag"
+            }
+          ],
+          "hide": false,
+          "measurement": "DistanceWalkingRunning",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT sum(\"value\") FROM \"DistanceWalkingRunning\" WHERE time > now() - 365d GROUP BY \"unit\"",
+          "rawQuery": true,
+          "refId": "C",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Flights climbed this year ($tag_unit)",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influx"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "unit"
+              ],
+              "type": "tag"
+            }
+          ],
+          "hide": false,
+          "measurement": "DistanceWalkingRunning",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT sum(\"value\") FROM \"FlightsClimbed\" WHERE time > now() - 365d GROUP BY \"unit\"",
+          "rawQuery": true,
+          "refId": "D",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Steps this year ($tag_unit)",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influx"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "unit"
+              ],
+              "type": "tag"
+            }
+          ],
+          "hide": false,
+          "measurement": "DistanceWalkingRunning",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT sum(\"value\") FROM \"StepCount\" WHERE time > now() - 365d GROUP BY \"unit\"",
+          "rawQuery": true,
+          "refId": "F",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Hours exercising (hours)",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influx"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "unit"
+              ],
+              "type": "tag"
+            }
+          ],
+          "hide": false,
+          "measurement": "DistanceWalkingRunning",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT sum(\"value\")/60 FROM \"AppleExerciseTime\" WHERE time > now() - 365d GROUP BY \"unit\"",
+          "rawQuery": true,
+          "refId": "H",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Hours standing up year (hours)",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influx"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "unit"
+              ],
+              "type": "tag"
+            }
+          ],
+          "hide": false,
+          "measurement": "DistanceWalkingRunning",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT sum(\"value\")/60 FROM \"AppleStandTime\" WHERE time > now() - 365d GROUP BY \"unit\"",
+          "rawQuery": true,
+          "refId": "G",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "type": "stat"
+    },
     {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 0
+        "y": 5
       },
       "id": 12,
       "panels": [],
@@ -102,7 +402,7 @@
         "h": 6,
         "w": 8,
         "x": 0,
-        "y": 1
+        "y": 6
       },
       "id": 2,
       "options": {
@@ -232,7 +532,7 @@
         "h": 6,
         "w": 8,
         "x": 8,
-        "y": 1
+        "y": 6
       },
       "id": 18,
       "options": {
@@ -361,7 +661,7 @@
         "h": 9,
         "w": 8,
         "x": 16,
-        "y": 1
+        "y": 6
       },
       "id": 3,
       "options": {
@@ -490,7 +790,7 @@
         "h": 6,
         "w": 8,
         "x": 0,
-        "y": 7
+        "y": 12
       },
       "id": 7,
       "options": {
@@ -619,7 +919,7 @@
         "h": 6,
         "w": 8,
         "x": 8,
-        "y": 7
+        "y": 12
       },
       "id": 16,
       "options": {
@@ -811,7 +1111,7 @@
         "h": 9,
         "w": 8,
         "x": 16,
-        "y": 10
+        "y": 15
       },
       "id": 8,
       "options": {
@@ -1000,7 +1300,7 @@
         "h": 6,
         "w": 8,
         "x": 0,
-        "y": 13
+        "y": 18
       },
       "id": 13,
       "options": {
@@ -1129,7 +1429,7 @@
         "h": 6,
         "w": 8,
         "x": 8,
-        "y": 13
+        "y": 18
       },
       "id": 19,
       "options": {
@@ -1201,7 +1501,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 19
+        "y": 24
       },
       "id": 10,
       "panels": [],
@@ -1270,7 +1570,7 @@
         "h": 11,
         "w": 12,
         "x": 0,
-        "y": 20
+        "y": 25
       },
       "id": 4,
       "options": {
@@ -1459,7 +1759,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 20
+        "y": 25
       },
       "id": 5,
       "options": {
@@ -1524,7 +1824,7 @@
           "tags": []
         },
         {
-          "alias": "Lowest heart rate",
+          "alias": "Highest heart rate",
           "datasource": {
             "type": "influxdb",
             "uid": "influx"
@@ -1637,7 +1937,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 28
+        "y": 33
       },
       "id": 14,
       "options": {
@@ -1766,7 +2066,7 @@
         "h": 11,
         "w": 12,
         "x": 0,
-        "y": 31
+        "y": 36
       },
       "id": 6,
       "options": {
@@ -2010,7 +2310,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 35
+        "y": 40
       },
       "id": 15,
       "options": {
@@ -2127,7 +2427,7 @@
       "type": "timeseries"
     }
   ],
-  "refresh": false,
+  "refresh": "30s",
   "schemaVersion": 37,
   "style": "dark",
   "tags": [],
