@@ -1,10 +1,9 @@
 import re
+import time
+import xml.etree.cElementTree as etree
 
 from dateutil.parser import parse
 from influxdb import InfluxDBClient
-import xml.etree.cElementTree as etree
-import time 
-
 
 PREFIX_RE = re.compile('HK.*Identifier(.+)$')
 input_path = '/export.xml'
