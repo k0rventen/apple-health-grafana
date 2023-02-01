@@ -6,7 +6,7 @@ Tool to import your Apple health export data in Influx and visualize them in Gra
 
 ## Export your Apple health Data
 
-From support.apple.com:
+From [support.apple.com](https://support.apple.com/guide/iphone/share-your-health-data-iph5ede58c3d/ios):
 ```
 Share your health and fitness data in XML format
 
@@ -21,7 +21,7 @@ You can export all of your health and fitness data from Health in XML format, wh
 
 This will create a .zip file that can be shared from the iPhone.
 
-Once you've copied/share the file to your computer, unzip it. You shoudl have a `export.xml` file in there. This is the file that contains all of your health data, and the one that will be parsed.
+Once you've copied/share the file to your computer, unzip it. You should have a `export.xml` file in there. This is the file that contains all of your health data, and the one that will be parsed.
 
 ## Launching the stack
 
@@ -40,9 +40,14 @@ Change the following line in the `docker-compose.yml`:
     - <local_export.xml_path>:/export.xml
 ```
 
-by replacing the `<local_export.xml_path>` with your actual __export.xml__ file path, eg __/home/me/apple_health_export/export.xml__.
+by replacing the `<local_export.xml_path>` with your actual health data export file path from the previous step, eg __/home/me/apple_health_export/export.xml__:
 
-Then simply run `docker-compose up --build`. You should see some logs from influx & grafana, then some from the ingester container.
+```yaml
+    volumes:
+    - /home/me/apple_health_export/export.xml:/export.xml
+```
+
+Then simply run `docker-compose up`. You should see some logs from influx & grafana, then some from the ingester container.
 Wait for a log saying that all the data have been imported.
 
 _Note: Depending on the amount of data the export has, it can take a few minutes to work through, and it may use a significant amount of resources._
