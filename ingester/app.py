@@ -1,12 +1,20 @@
+import os
 import re
 import time
-import xml.etree.cElementTree as etree
+import xml.etree.ElementTree as etree
+from shutil import unpack_archive
 
+import gpxpy
 from dateutil.parser import parse
+from gpxpy.gpx import GPXTrackPoint
 from influxdb import InfluxDBClient
 
+client = InfluxDBClient('influx', 8086, database='health')
 PREFIX_RE = re.compile('HK.*Identifier(.+)$')
-input_path = '/export.xml'
+zip_path = '/export.zip'
+unzip_path = "/export"
+routes_path = "/export/apple_health_export/workout-routes/"
+export_path = "/export/apple_health_export/export.xml"
 
 def try_to_float(v):
     try:
@@ -15,7 +23,25 @@ def try_to_float(v):
         try:
             return int(v)
         except:
-            return 1
+            return 0
+
+
+def format_route_point(name,point: GPXTrackPoint,next_point=None)-> dict:
+    slug_name = name.replace(" ","-").replace(":","-").lower()
+    datapoint = {
+        "measurement":'workout-routes',
+        "tags":{
+            "workout":slug_name
+        },
+        "time":point.time,
+        "fields":{
+            "latitude":point.latitude,
+            "longitude": point.longitude,
+            "elevation": point.elevation
+        }}
+    if next_point:
+        datapoint['fields']['speed'] = point.speed_between(next_point) if next_point else 0
+    return datapoint
 
 def format_record(record):
     m = re.match(PREFIX_RE, record.get("type"))
@@ -35,35 +61,67 @@ def format_record(record):
         }
     }
 
-client = InfluxDBClient('influx', 8086, database='health')
-while True:
-    try:
-        client.ping()
-        break
-    except:
-        print("waiting on influx to be ready..")
-        time.sleep(1)
-
-client.drop_database("health")
-client.create_database("health")
 
 
-formatted_records = []
-total_count = 0
-for _, elem in etree.iterparse("/export.xml"):
-    if elem.tag == "Record":
-        f = format_record(elem)
-        formatted_records.append(f)
-        del elem
+def parse_workout_route(route_xml_file):
+    with open(route_xml_file, 'r') as gpx_file:
+        gpx = gpxpy.parse(gpx_file)
+        for track in gpx.tracks:
+            track_points=[]
+            print("opening",track.name)
+            for segment in track.segments:
+                num_points = len(segment.points)
+                for i in range(num_points):
+                    track_points.append(format_route_point(track.name,segment.points[i],segment.points[i+1] if i +1 < num_points else None))
+            client.write_points(track_points,time_precision="s")
 
-        # batch push every 10000
-        if len(formatted_records) == 10000:
-            total_count += 10000
-            client.write_points(formatted_records,time_precision="s")
-            formatted_records.clear()
-            print("inserted",total_count,"records")
 
-# push the rest
-client.write_points(formatted_records,time_precision="s")
-print("Total number of records:",total_count+len(formatted_records))
-print('All done ! You can now check grafana.')
+def process_workout_routes():
+    print('loading workout routes')
+    for file in os.listdir(routes_path):
+        if file.endswith(".gpx"):
+            route_file = os.path.join(routes_path, file)
+            parse_workout_route(route_file)
+
+
+def process_health_data():
+    formatted_records = []
+    total_count = 0
+    for _, elem in etree.iterparse(export_path):
+        if elem.tag == "Record":
+            f = format_record(elem)
+            formatted_records.append(f)
+            del elem
+
+            # batch push every 10000
+            if len(formatted_records) == 10000:
+                total_count += 10000
+                client.write_points(formatted_records,time_precision="s")
+                del formatted_records
+                formatted_records = []
+                print("inserted",total_count,"records")
+
+    # push the rest
+    client.write_points(formatted_records,time_precision="s")
+    print("Total number of records:",total_count+len(formatted_records))
+
+if __name__ == "__main__":
+    print('unzipping the export file..')
+    unpack_archive(zip_path, unzip_path)
+    print('export file unzipped')
+
+
+    while True:
+        try:
+            client.ping()
+            client.drop_database("health")
+            client.create_database("health")
+            print('influx is ready')
+            break
+        except:
+            print("waiting on influx to be ready..")
+            time.sleep(1)
+
+    process_workout_routes()
+    process_health_data()
+    print('All done ! You can now check grafana.')

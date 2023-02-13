@@ -11,9 +11,11 @@ services:
     - ./provisioning:/etc/grafana/provisioning
   influx:
     image: influxdb:1.8
+    restart: always
     environment:
       - INFLUXDB_DB=health
   ingester:
     image: k0rventen/apple-health-grafana-ingester
+    build: ./ingester
     volumes:
-    - <local_export.xml_path>:/export.xml
+    - <local_path_to_export.zip>:/export.zip
