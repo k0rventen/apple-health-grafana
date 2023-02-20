@@ -1,8 +1,9 @@
-# apple health grafana
+# Apple Health Grafana
 
-Tool to import your Apple health export data in Influx and visualize them in Grafana.
+Tool to import your Apple Health Data in Influx and visualize them in Grafana.
 
-![example](example.png)
+![metrics](example1.png)
+![routes](example2.png)
 
 ## Export your Apple health Data
 
@@ -19,9 +20,9 @@ You can export all of your health and fitness data from Health in XML format, wh
     Tap Export all health data, then choose a method for sharing your data.
 ```
 
-This will create a .zip file that can be shared from the iPhone.
+This will create a .zip file that can be shared from the iPhone via Airdrop, messages, mail and so on.
 
-Once you've copied/share the file to your computer, unzip it. You should have a `export.xml` file in there. This is the file that contains all of your health data, and the one that will be parsed.
+Once you've copied/shared the file to your computer, note the path of the file (can be something like /home/me/downloads/export.zip)
 
 ## Launching the stack
 
@@ -37,20 +38,20 @@ Change the following line in the `docker-compose.yml`:
 
 ```yaml
     volumes:
-    - <local_export.xml_path>:/export.xml
+    - <local_path_to_export.zip>:/export.zip
 ```
 
-by replacing the `<local_export.xml_path>` with your actual health data export file path from the previous step, eg __/home/me/apple_health_export/export.xml__:
+by replacing the `<local_path_to_export.zip>` with your actual health data export file path from the previous step, eg __/home/me/downloads/export.zip__:
 
 ```yaml
     volumes:
-    - /home/me/apple_health_export/export.xml:/export.xml
+    - /home/me/downloads/export.zip:/export.zip
 ```
 
 Then simply run `docker-compose up`. You should see some logs from influx & grafana, then some from the ingester container.
 Wait for a log saying that all the data have been imported.
 
-_Note: Depending on the amount of data the export has, it can take a few minutes to work through, and it may use a significant amount of resources._
+_Note: Depending on the amount of data the export has, it can take a few minutes to work through, and it may use a significant amount of resources. As an example, loading nearly 3 years of data (2 millions data points) on a Raspberry Pi 4 took around 6 minutes and used a maximum of 2.8Gig of memory._
 
 
 ## Visualization and next steps
@@ -59,7 +60,11 @@ _Note: Depending on the amount of data the export has, it can take a few minutes
 Head to __http://localhost:3000__, and log with the grafana creds from the compose file (defaults to `admin`:`health`).
 
 You should see some graphs with metrics in them.
-2 dashboards are created by default, a more generic one displaying every metric available, and a more refined one for specific metrics.
+3 dashboards are created by default:
+- a generic one displaying every metric available, 
+- a more refined one for specific metrics that are probably present , like walking distance, hearth related metrics..
+- a workout routes one, that shows a GPS map of your outdoor routes (walking/running/biking).
+
 
 ## Tips on analyzing the data
 
