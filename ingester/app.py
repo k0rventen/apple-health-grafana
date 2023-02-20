@@ -37,10 +37,12 @@ def format_route_point(name,point: GPXTrackPoint,next_point=None)-> dict:
         "fields":{
             "latitude":point.latitude,
             "longitude": point.longitude,
-            "elevation": point.elevation
+            "elevation": point.elevation,
+            
         }}
     if next_point:
         datapoint['fields']['speed'] = point.speed_between(next_point) if next_point else 0
+        datapoint['fields']['distance'] = point.distance_3d(next_point)
     return datapoint
 
 def format_record(record):
@@ -106,6 +108,7 @@ def process_health_data():
     print("Total number of records:",total_count+len(formatted_records))
 
 if __name__ == "__main__":
+    time.sleep(10)
     print('unzipping the export file..')
     unpack_archive(zip_path, unzip_path)
     print('export file unzipped')
