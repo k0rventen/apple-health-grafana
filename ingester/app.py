@@ -1,3 +1,7 @@
+"""
+Ingester module that converts Apple Health export zip file
+into influx db datapoints
+"""
 import os
 import re
 import time
@@ -17,6 +21,7 @@ routes_path = "/export/apple_health_export/workout-routes/"
 export_path = "/export/apple_health_export/export.xml"
 
 def try_to_float(v):
+    """convert v to float or 0"""
     try:
         return float(v)
     except ValueError:
@@ -27,6 +32,9 @@ def try_to_float(v):
 
 
 def format_route_point(name,point: GPXTrackPoint,next_point=None)-> dict:
+    """for a given `point`, creates an influxdb point
+    and computes speed and distance if `next_point` exists
+    """
     slug_name = name.replace(" ","-").replace(":","-").lower()
     datapoint = {
         "measurement":'workout-routes',
@@ -46,6 +54,7 @@ def format_route_point(name,point: GPXTrackPoint,next_point=None)-> dict:
     return datapoint
 
 def format_record(record):
+    """format a export health xml record for influx"""
     m = re.match(PREFIX_RE, record.get("type"))
     measurement =  m.group(1) if m else record.get("type")
     value = try_to_float(record.get("value",1))
@@ -108,9 +117,12 @@ def process_health_data():
     print("Total number of records:",total_count+len(formatted_records))
 
 if __name__ == "__main__":
-    time.sleep(10)
     print('unzipping the export file..')
-    unpack_archive(zip_path, unzip_path)
+    try:
+        unpack_archive(zip_path, unzip_path)
+    except Exception as unzip_err:
+        print("Unable to open export zip: ",unzip_err)
+        exit(1)
     print('export file unzipped')
 
 
