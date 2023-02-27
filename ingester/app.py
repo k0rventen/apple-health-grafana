@@ -88,14 +88,20 @@ def parse_workout_route(route_xml_file):
 
 
 def process_workout_routes():
-    print('loading workout routes')
-    for file in os.listdir(routes_path):
-        if file.endswith(".gpx"):
-            route_file = os.path.join(routes_path, file)
-            parse_workout_route(route_file)
+    if os.path.exists(routes_path) and os.path.isdir(routes_path):
+        print('loading workout routes')
+        for file in os.listdir(routes_path):
+            if file.endswith(".gpx"):
+                route_file = os.path.join(routes_path, file)
+                parse_workout_route(route_file)
+    else:
+        print('no workout routes found, skipping..')
 
 
 def process_health_data():
+    if not os.path.exists(export_path):
+        print("no export.xml file found, skipping")
+        return
     formatted_records = []
     total_count = 0
     for _, elem in etree.iterparse(export_path):
