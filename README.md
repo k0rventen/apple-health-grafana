@@ -51,8 +51,12 @@ by replacing the `<local_path_to_export.zip>` with your actual health data expor
 Then simply run :
 
 ```
+# download or upgrade the images (especially if you've already used the project)
+docker-compose pull
+
 # start grafana and influx in the background
 docker-compose up -d grafana influx
+
 # start our ingester
 docker-compose up ingester
 ```
