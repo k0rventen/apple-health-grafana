@@ -108,7 +108,7 @@ def process_health_data():
         if elem.tag == "Record":
             f = format_record(elem)
             formatted_records.append(f)
-            del elem
+            elem.clear()
 
             # batch push every 10000
             if len(formatted_records) == 10000:
