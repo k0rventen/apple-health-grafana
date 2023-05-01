@@ -24,7 +24,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 2,
+  "id": 1,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -99,7 +99,7 @@
         },
         "textMode": "value_and_name"
       },
-      "pluginVersion": "9.3.2",
+      "pluginVersion": "9.3.13",
       "targets": [
         {
           "alias": "Cycled distance this year ($tag_unit)",
@@ -111,7 +111,7 @@
           "measurement": "BodyMass",
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT sum(\"value\") FROM \"DistanceCycling\" WHERE time > now() - 365d GROUP BY \"unit\"",
+          "query": "SELECT sum(\"value\") FROM \"DistanceCycling\" WHERE (\"device\" =~ /^$source$/) AND  time > now() - 365d GROUP BY \"unit\"",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -138,7 +138,7 @@
           "measurement": "DistanceSwimming",
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT sum(\"value\")/1000 FROM \"DistanceSwimming\" WHERE time > now() - 365d GROUP BY \"unit\"",
+          "query": "SELECT sum(\"value\")/1000 FROM \"DistanceSwimming\" WHERE (\"device\" =~ /^$source$/) AND  time > now() - 365d GROUP BY \"unit\"",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series",
@@ -172,7 +172,7 @@
           "measurement": "DistanceWalkingRunning",
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT sum(\"value\") FROM \"DistanceWalkingRunning\" WHERE time > now() - 365d GROUP BY \"unit\"",
+          "query": "SELECT sum(\"value\") FROM \"DistanceWalkingRunning\" WHERE (\"device\" =~ /^$source$/) AND  time > now() - 365d GROUP BY \"unit\"",
           "rawQuery": true,
           "refId": "C",
           "resultFormat": "time_series",
@@ -206,7 +206,7 @@
           "measurement": "DistanceWalkingRunning",
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT sum(\"value\") FROM \"FlightsClimbed\" WHERE time > now() - 365d GROUP BY \"unit\"",
+          "query": "SELECT sum(\"value\") FROM \"FlightsClimbed\" WHERE (\"device\" =~ /^$source$/) AND  time > now() - 365d GROUP BY \"unit\"",
           "rawQuery": true,
           "refId": "D",
           "resultFormat": "time_series",
@@ -240,7 +240,7 @@
           "measurement": "DistanceWalkingRunning",
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT sum(\"value\") FROM \"StepCount\" WHERE time > now() - 365d GROUP BY \"unit\"",
+          "query": "SELECT sum(\"value\") FROM \"StepCount\" WHERE (\"device\" =~ /^$source$/) AND  time > now() - 365d GROUP BY \"unit\"",
           "rawQuery": true,
           "refId": "F",
           "resultFormat": "time_series",
@@ -274,7 +274,7 @@
           "measurement": "DistanceWalkingRunning",
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT sum(\"value\")/60 FROM \"AppleExerciseTime\" WHERE time > now() - 365d GROUP BY \"unit\"",
+          "query": "SELECT sum(\"value\")/60 FROM \"AppleExerciseTime\" WHERE (\"device\" =~ /^$source$/) AND  time > now() - 365d GROUP BY \"unit\"",
           "rawQuery": true,
           "refId": "H",
           "resultFormat": "time_series",
@@ -308,7 +308,7 @@
           "measurement": "DistanceWalkingRunning",
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT sum(\"value\")/60 FROM \"AppleStandTime\" WHERE time > now() - 365d GROUP BY \"unit\"",
+          "query": "SELECT sum(\"value\")/60 FROM \"AppleStandTime\" WHERE (\"device\" =~ /^$source$/) AND  time > now() - 365d GROUP BY \"unit\"",
           "rawQuery": true,
           "refId": "G",
           "resultFormat": "time_series",
@@ -438,6 +438,12 @@
             },
             {
               "params": [
+                "device"
+              ],
+              "type": "tag"
+            },
+            {
+              "params": [
                 "none"
               ],
               "type": "fill"
@@ -462,10 +468,28 @@
               }
             ]
           ],
-          "tags": []
+          "tags": [
+            {
+              "key": "device",
+              "operator": "=~",
+              "value": "/^$source$/"
+            }
+          ]
         }
       ],
       "title": "Distance walked per day",
+      "transformations": [
+        {
+          "id": "calculateField",
+          "options": {
+            "mode": "reduceRow",
+            "reduce": {
+              "reducer": "mean"
+            },
+            "replaceFields": true
+          }
+        }
+      ],
       "type": "timeseries"
     },
     {
@@ -826,6 +850,12 @@
             },
             {
               "params": [
+                "device"
+              ],
+              "type": "tag"
+            },
+            {
+              "params": [
                 "none"
               ],
               "type": "fill"
@@ -850,10 +880,28 @@
               }
             ]
           ],
-          "tags": []
+          "tags": [
+            {
+              "key": "device",
+              "operator": "=~",
+              "value": "/^$source$/"
+            }
+          ]
         }
       ],
       "title": "Steps per day",
+      "transformations": [
+        {
+          "id": "calculateField",
+          "options": {
+            "mode": "reduceRow",
+            "reduce": {
+              "reducer": "mean"
+            },
+            "replaceFields": true
+          }
+        }
+      ],
       "type": "timeseries"
     },
     {
@@ -950,6 +998,12 @@
             {
               "params": [
                 "unit"
+              ],
+              "type": "tag"
+            },
+            {
+              "params": [
+                "device"
               ],
               "type": "tag"
             },
@@ -2432,7 +2486,35 @@
   "style": "dark",
   "tags": [],
   "templating": {
-    "list": []
+    "list": [
+      {
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": {
+          "type": "influxdb",
+          "uid": "influx"
+        },
+        "definition": "show tag values from StepCount with key=device",
+        "hide": 0,
+        "includeAll": true,
+        "multi": true,
+        "name": "source",
+        "options": [],
+        "query": "show tag values from StepCount with key=device",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      }
+    ]
   },
   "time": {
     "from": "now-2y",
@@ -2442,6 +2524,6 @@
   "timezone": "",
   "title": "Apple health specific metrics",
   "uid": "specific-metrics",
-  "version": 1,
+  "version": 4,
   "weekStart": ""
 }

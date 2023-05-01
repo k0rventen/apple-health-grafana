@@ -60,11 +60,13 @@ def format_record(record):
     value = try_to_float(record.get("value",1))
     unit = record.get("unit","unit")
     date = int(parse(record.get("startDate")).timestamp())
+    device = record.get("sourceName","unknown")
 
     return {
         "measurement":measurement,
         "tags":{
-            "unit":unit
+            "unit":unit,
+            "device":device
         },
         "time":date,
         "fields":{

@@ -29,6 +29,7 @@
   "liveNow": false,
   "panels": [
     {
+      "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -120,7 +121,7 @@
       },
       "targets": [
         {
-          "alias": "$metrics ($tag_unit)",
+          "alias": "$metrics ($tag_unit) from $tag_device",
           "datasource": {
             "type": "influxdb",
             "uid": "influx"
@@ -135,6 +136,12 @@
             {
               "params": [
                 "unit"
+              ],
+              "type": "tag"
+            },
+            {
+              "params": [
+                "device"
               ],
               "type": "tag"
             },
@@ -164,7 +171,13 @@
               }
             ]
           ],
-          "tags": []
+          "tags": [
+            {
+              "key": "device",
+              "operator": "=~",
+              "value": "/^$device$/"
+            }
+          ]
         }
       ],
       "transparent": true,
@@ -198,6 +211,33 @@
         "skipUrlSync": false,
         "sort": 0,
         "type": "query"
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": {
+          "type": "influxdb",
+          "uid": "influx"
+        },
+        "definition": "show tag values from StepCount with key=device",
+        "hide": 0,
+        "includeAll": true,
+        "multi": true,
+        "name": "device",
+        "options": [],
+        "query": "show tag values from StepCount with key=device",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
       }
     ]
   },
@@ -209,6 +249,6 @@
   "timezone": "",
   "title": "Apple Health",
   "uid": "apple-health",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }
