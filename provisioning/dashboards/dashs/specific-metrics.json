@@ -128,7 +128,7 @@
           "tags": []
         },
         {
-          "alias": "Distance swimmed this year (km)",
+          "alias": "Distance swam this year (km)",
           "datasource": {
             "type": "influxdb",
             "uid": "influx"
