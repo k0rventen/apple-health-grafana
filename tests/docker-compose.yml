@@ -1,0 +1,11 @@
+version: "3"
+services:
+  influx:
+    image: influxdb:1.8
+    restart: always
+    environment:
+      - INFLUXDB_DB=health
+  ingester:
+    build: ../ingester
+    volumes:
+    - ./test-export.zip:/export.zip
