@@ -42,6 +42,9 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ github.ref_name }}
+          includeInvalidCommits: true
+          useGitmojis: false
+
 
       - name: create release with changelog
         uses: ncipollo/release-action@v1.12.0
