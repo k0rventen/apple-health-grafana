@@ -5,10 +5,10 @@ into influx db datapoints
 import os
 import time
 import xml.etree.ElementTree as etree
+from datetime import datetime as dt
 from shutil import unpack_archive
 from typing import Any, Union
 
-import dateutil.parser
 import gpxpy
 from gpxpy.gpx import GPXTrackPoint
 from influxdb import InfluxDBClient
@@ -30,7 +30,7 @@ def parse_float_with_try(v: Any) -> Union[float, int]:
 
 
 def parse_date_as_timestamp(v: Any) -> int:
-    return int(dateutil.parser.parse(v).timestamp())
+    return int(dt.fromisoformat(v).timestamp())
 
 
 def format_route_point(
