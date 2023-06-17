@@ -5,7 +5,7 @@ into influx db datapoints
 import os
 import time
 import xml.etree.ElementTree as etree
-from datetime import datetime as dt
+from datetime import datetime,timedelta
 from shutil import unpack_archive
 from typing import Any, Union
 
@@ -30,7 +30,7 @@ def parse_float_with_try(v: Any) -> Union[float, int]:
 
 
 def parse_date_as_timestamp(v: Any) -> int:
-    return int(dt.fromisoformat(v).timestamp())
+    return int(datetime.fromisoformat(v).timestamp())
 
 
 def format_route_point(
@@ -56,6 +56,29 @@ def format_route_point(
         datapoint["fields"]["distance"] = point.distance_3d(next_point)
     return datapoint
 
+def compute_sleep_times(record):
+    start_date = datetime.fromisoformat(record.get("startDate"))
+    start_date = start_date.replace(second=0)
+    end_date = datetime.fromisoformat(record.get("endDate"))
+    end_date = end_date.replace(second=0)  
+    device = record.get("sourceName", "unknown")
+    minutes_in_bed = []
+    sleep_seconds = int(end_date.timestamp() -  start_date.timestamp())
+    while start_date <= end_date:
+        minutes_in_bed.append({
+            'measurement':"SleepAnalysisTimes",
+            "time":int(start_date.timestamp()),
+            "fields": {"value": 1 if record.get("value") == "HKCategoryValueSleepAnalysisInBed" else 2,},
+            "tags": {"unit": 'minutes', "device": device}
+        })
+        start_date += timedelta(minutes=1)
+    minutes_in_bed.append({
+            'measurement':'SleepAnalysis',
+            "time":start_date,
+            "fields": {"value": sleep_seconds},
+            "tags": {"unit": 'seconds', "device": device,'state':record.get("value")}
+        })
+    return minutes_in_bed
 
 def format_record(record: dict[str, Any]) -> dict[str, Any]:
     """format a export health xml record for influx"""
@@ -65,17 +88,20 @@ def format_record(record: dict[str, Any]) -> dict[str, Any]:
         .removeprefix("HKCategoryTypeIdentifier")
         .removeprefix("HKDataType")
     )
+    if measurement == "SleepAnalysis":
+        return compute_sleep_times(record)
+        
     date = parse_date_as_timestamp(record.get("startDate", 0))
     value = parse_float_with_try(record.get("value", 1))
     unit = record.get("unit", "unit")
     device = record.get("sourceName", "unknown")
 
-    return {
+    return [{
         "measurement": measurement,
         "time": date,
         "fields": {"value": value},
         "tags": {"unit": unit, "device": device},
-    }
+    }]
 
 
 def format_workout(record: dict[str, Any]) -> dict[str, Any]:
@@ -133,16 +159,18 @@ def process_health_data(client: InfluxDBClient) -> None:
     records = []
     total_count = 0
     for _, elem in etree.iterparse(EXPORT_PATH):
-        if elem.tag == "Record":
-            records.append(format_record(elem))
+        if elem.tag == "Record":            
+            if rec := format_record(elem):
+                for r in rec:
+                    records.append(r)
             elem.clear()
-        elif elem.tag == "Workout":
-            records.append(format_workout(elem))
-            elem.clear()
+        # elif elem.tag == "Workout":
+        #     records.append(format_workout(elem))
+        #     elem.clear()
 
         # batch push every 10000
-        if len(records) == 10000:
-            total_count += 10000
+        if len(records) >= 10000:
+            total_count += len(records)
             client.write_points(records, time_precision="s")
 
             del records
@@ -176,6 +204,6 @@ if __name__ == "__main__":
             print("Waiting on influx to be ready..")
             time.sleep(1)
 
-    process_workout_routes(client)
+    #process_workout_routes(client)
     process_health_data(client)
     print("All done! You can now check grafana.")
