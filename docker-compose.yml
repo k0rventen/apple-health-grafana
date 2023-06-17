@@ -14,8 +14,13 @@ services:
     restart: always
     environment:
       - INFLUXDB_DB=health
+    volumes:
+    - influx-data:/var/lib/influxdb
   ingester:
     image: k0rventen/apple-health-grafana-ingester
     build: ./ingester
     volumes:
     - <local_path_to_export.zip>:/export.zip
+
+volumes:
+  influx-data:
