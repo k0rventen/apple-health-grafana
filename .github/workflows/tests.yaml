@@ -20,14 +20,15 @@ jobs:
         run: |
           cd tests
           docker compose up -d influx
-          docker compose up --build ingester 
       - 
         name: run tests
         run: |
           cd tests
           chmod a+x tests.sh
+          docker compose up --build test-ingester-1 
           docker compose cp tests.sh influx:/usr/local/bin/
           docker compose exec influx "tests.sh"
+          docker compose up --build test-ingester-2
       - 
         name: cleanup
         run: |

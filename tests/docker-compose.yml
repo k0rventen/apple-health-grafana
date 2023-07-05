@@ -5,7 +5,15 @@ services:
     restart: always
     environment:
       - INFLUXDB_DB=health
-  ingester:
+
+  # test the parsing of routes with an export.xml file
+  test-ingester-1:
     build: ../ingester
     volumes:
     - ./test-export.zip:/export.zip
+
+  # test the absence of workout routes and an Export.xml file
+  test-ingester-2:
+    build: ../ingester
+    volumes:
+    - ./test-export2.zip:/export.zip
