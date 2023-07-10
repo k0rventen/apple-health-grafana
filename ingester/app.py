@@ -5,7 +5,7 @@ into influx db datapoints
 import os
 import re
 import time
-import xml.etree.ElementTree as etree
+from lxml import etree
 from datetime import datetime as dt
 from shutil import unpack_archive
 from typing import Any, Union
@@ -137,7 +137,8 @@ def process_health_data(client: InfluxDBClient) -> None:
     print("Export file is",export_file)
     records = []
     total_count = 0
-    for _, elem in etree.iterparse(export_file):
+    context = etree.iterparse(export_file,recover=True)
+    for _, elem in context:
         if elem.tag == "Record":
             records.append(format_record(elem))
             elem.clear()
