@@ -7,13 +7,19 @@ services:
       - INFLUXDB_DB=health
 
   # test the parsing of routes with an export.xml file
-  test-ingester-1:
+  test-ingester-std:
     build: ../ingester
     volumes:
     - ./test-export.zip:/export.zip
 
   # test the absence of workout routes and an Export.xml file
-  test-ingester-2:
+  test-ingester-no-routes-uppercase:
     build: ../ingester
     volumes:
     - ./test-export2.zip:/export.zip
+
+  # test with a malformed export.xml
+  test-ingester-malformed-xml:
+    build: ../ingester
+    volumes:
+    - ./test-export3.zip:/export.zip
