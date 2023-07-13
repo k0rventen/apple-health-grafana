@@ -1,12 +1,13 @@
 version: "3"
 services:
   grafana:
-    image: grafana/grafana:9.5.2
+    image: grafana/grafana:9.5.5
     ports:
     - 3000:3000
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=health
+      - GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/etc/grafana/provisioning/dashboards/dashs/specific-metrics.json
     volumes:
     - ./provisioning:/etc/grafana/provisioning
   influx:
@@ -14,8 +15,13 @@ services:
     restart: always
     environment:
       - INFLUXDB_DB=health
+    volumes:
+    - influx-data:/var/lib/influxdb
   ingester:
     image: k0rventen/apple-health-grafana-ingester
     build: ./ingester
     volumes:
     - <local_path_to_export.zip>:/export.zip
+
+volumes:
+  influx-data:

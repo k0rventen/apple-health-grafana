@@ -5,7 +5,21 @@ services:
     restart: always
     environment:
       - INFLUXDB_DB=health
-  ingester:
+
+  # test the parsing of routes with an export.xml file
+  test-ingester-std:
     build: ../ingester
     volumes:
     - ./test-export.zip:/export.zip
+
+  # test the absence of workout routes and an Export.xml file
+  test-ingester-no-routes-uppercase:
+    build: ../ingester
+    volumes:
+    - ./test-export2.zip:/export.zip
+
+  # test with a malformed export.xml
+  test-ingester-malformed-xml:
+    build: ../ingester
+    volumes:
+    - ./test-export3.zip:/export.zip

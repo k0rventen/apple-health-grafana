@@ -3,8 +3,10 @@ Ingester module that converts Apple Health export zip file
 into influx db datapoints
 """
 import os
+import re
 import time
-import xml.etree.ElementTree as etree
+
+from lxml import etree
 from datetime import datetime,timedelta
 from shutil import unpack_archive
 from typing import Any, Union
@@ -15,8 +17,8 @@ from influxdb import InfluxDBClient
 
 ZIP_PATH = "/export.zip"
 ROUTES_PATH = "/export/apple_health_export/workout-routes/"
-EXPORT_PATH = "/export/apple_health_export/export.xml"
-
+EXPORT_PATH = "/export/apple_health_export"
+EXPORT_XML_REGEX = re.compile("export.xml",re.IGNORECASE)
 
 def parse_float_with_try(v: Any) -> Union[float, int]:
     """convert v to float or 0"""
@@ -153,21 +155,23 @@ def process_workout_routes(client: InfluxDBClient) -> None:
 
 
 def process_health_data(client: InfluxDBClient) -> None:
-    if not os.path.exists(EXPORT_PATH):
-        print("No export.xml file found, skipping ...")
+    export_xml_files = [f for f in os.listdir(EXPORT_PATH) if EXPORT_XML_REGEX.match(f)]
+    if not export_xml_files:
+        print("No export file found, skipping...")
         return
+    
+    export_file = os.path.join(EXPORT_PATH,export_xml_files[0])
+    print("Export file is",export_file)
     records = []
     total_count = 0
-    for _, elem in etree.iterparse(EXPORT_PATH):
-        if elem.tag == "Record":            
-            if rec := format_record(elem):
-                for r in rec:
-                    records.append(r)
+    context = etree.iterparse(export_file,recover=True)
+    for _, elem in context:
+        if elem.tag == "Record":
+            records.append(format_record(elem))
             elem.clear()
-        # elif elem.tag == "Workout":
-        #     records.append(format_workout(elem))
-        #     elem.clear()
-
+        elif elem.tag == "Workout":
+            records.append(format_workout(elem))
+            elem.clear()
         # batch push every 10000
         if len(records) >= 10000:
             total_count += len(records)
@@ -183,7 +187,7 @@ def process_health_data(client: InfluxDBClient) -> None:
 
 
 if __name__ == "__main__":
-    print("Unzipping the export file ...")
+    print("Unzipping the export file...")
     try:
         unpack_archive(ZIP_PATH, "/export")
     except Exception as unzip_err:

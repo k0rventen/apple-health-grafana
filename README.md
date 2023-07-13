@@ -48,6 +48,14 @@ by replacing the `<local_path_to_export.zip>` with your actual health data expor
     - /home/me/downloads/export.zip:/export.zip
 ```
 
+you can also use a relative path (assuming you are in the same directory as the compose file):
+```yaml
+    volumes:
+    - ./export.zip:/export.zip
+```
+
+
+
 Then simply run :
 
 ```
@@ -78,13 +86,13 @@ apple-health-grafana-ingester-1 exited with code 0
 
 Wait for a log saying that all the data have been imported.
 
-_Note: Depending on the amount of data the export has, it can take a few minutes to work through, and it may use a significant amount of resources. As an example, loading nearly 3 years of data (2 millions data points) on a Raspberry Pi 4 took around 6 minutes and used a maximum of 2.8Gig of memory._
+_Note: Depending on the amount of data the export has, it can take a few minutes to work through. As an example, loading nearly 3 years of data (2 millions+ data points, 200+ workout routes) on a 10th gen i5 took 2 minutes and around 11 minutes on a Raspberry Pi 4._
 
 
 ## Visualization and next steps
 
 
-Head to __http://localhost:3000__, and log with the grafana creds from the compose file (defaults to `admin`:`health`).
+Head to __http://localhost:3000__, and log in with the grafana creds from the compose file (defaults to `admin`:`health`).
 
 You should see some graphs with metrics in them.
 3 dashboards are created by default:
