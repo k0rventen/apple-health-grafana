@@ -9,6 +9,7 @@ from lxml import etree
 from datetime import datetime as dt
 from shutil import unpack_archive
 from typing import Any, Union
+import subprocess
 
 import gpxpy
 from gpxpy.gpx import GPXTrackPoint
@@ -132,9 +133,14 @@ def process_health_data(client: InfluxDBClient) -> None:
     if not export_xml_files:
         print("No export file found, skipping...")
         return
-    
     export_file = os.path.join(EXPORT_PATH,export_xml_files[0])
     print("Export file is",export_file)
+
+    print("Removing potentially malformed XML..")
+    p = subprocess.run("sed -i '/<HealthData/,$!d' "+export_file,shell=True,capture_output=True)
+    if p.returncode != 0:
+        print(p.stdout,p.stderr)
+
     records = []
     total_count = 0
     context = etree.iterparse(export_file,recover=True)
