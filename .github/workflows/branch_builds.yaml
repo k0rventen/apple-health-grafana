@@ -38,4 +38,4 @@ jobs:
           context: ./ingester
           push: true
           platforms: linux/amd64,linux/arm64
-          tags: ${{ github.repository }}-ingester:${GITHUB_REF_SLUG}
+          tags: ${{ github.repository }}-ingester:${{ env.GITHUB_REF_SLUG }}
