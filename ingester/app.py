@@ -14,7 +14,7 @@ import subprocess
 from formatters import parse_date_as_timestamp, parse_float_with_try, AppleStandHourFormatter 
 import gpxpy
 from gpxpy.gpx import GPXTrackPoint
-from influxdb import InfluxDBClient
+from influxdb_client import InfluxDBClient, Point
 
 ZIP_PATH = "/export.zip"
 ROUTES_PATH = "/export/apple_health_export/workout-routes/"
