@@ -19,7 +19,7 @@ services:
     - influx-data:/var/lib/influxdb
   ingester:
     image: k0rventen/apple-health-grafana-ingester
-    build: ./ingester
+    #build: ./ingester
     volumes:
     - <local_path_to_export.zip>:/export.zip
 
