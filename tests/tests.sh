@@ -1,10 +1,6 @@
 #!/bin/bash
+set -e
+influx  -database 'health' -format 'json' -execute 'SELECT COUNT(x) FROM (SELECT *,x::INTEGER FROM 'WalkingSpeed' FILL(0))' | jq -e '.results[0].series[0].values[0][1]|contains(400)'
+influx  -database 'health' -format 'json' -execute 'SELECT COUNT(x) FROM (SELECT *,x::INTEGER FROM 'StepCount' FILL(0))' | jq -e '.results[0].series[0].values[0][1]|contains(399)'
 
-# Note that this should be executed within the influx container
-# docker compose cp tests.sh influx:/usr/local/bin/
-# docker compose exec influx "tests.sh"
-measurements=$(influx -database 'health' -execute 'show measurements' | tail -n +4)
-for m in $measurements
-do 
-  influx  -database 'health' -execute 'select(value) from "'$m'" limit 3'
-done
+influx -format 'json' -execute 'DROP DATABASE health'

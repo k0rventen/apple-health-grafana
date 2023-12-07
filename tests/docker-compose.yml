@@ -23,3 +23,9 @@ services:
     build: ../ingester
     volumes:
     - ./test-export3.zip:/export.zip
+
+  # test with another malformed export.xml
+  test-ingester-malformed-xml-2:
+    build: ../ingester
+    volumes:
+    - ./test-export4.zip:/export.zip

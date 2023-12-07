@@ -59,7 +59,7 @@ def format_record(record: dict[str, Any]) -> dict[str, Any]:
         return AppleStandHourFormatter(record)
     if measurement == "SleepAnalysis":
         return SleepAnalysisFormatter(record)
-    
+
     date = parse_date_as_timestamp(record.get("startDate", 0))
     value = parse_float_with_try(record.get("value", 1))
     unit = record.get("unit", "unit")
