@@ -11,7 +11,8 @@ from shutil import unpack_archive
 from typing import Any, Union
 import subprocess
 
-from formatters import parse_date_as_timestamp, parse_float_with_try, AppleStandHourFormatter 
+from formatters import parse_date_as_timestamp, parse_float_with_try, AppleStandHourFormatter, SleepAnalysisFormatter
+
 import gpxpy
 from gpxpy.gpx import GPXTrackPoint
 from influxdb import InfluxDBClient
@@ -56,18 +57,20 @@ def format_record(record: dict[str, Any]) -> dict[str, Any]:
 
     if measurement == "AppleStandHour":
         return AppleStandHourFormatter(record)
+    if measurement == "SleepAnalysis":
+        return SleepAnalysisFormatter(record)
 
     date = parse_date_as_timestamp(record.get("startDate", 0))
     value = parse_float_with_try(record.get("value", 1))
     unit = record.get("unit", "unit")
     device = record.get("sourceName", "unknown")
 
-    return {
+    return [{
         "measurement": measurement,
         "time": date,
         "fields": {"value": value},
         "tags": {"unit": unit, "device": device},
-    }
+    }]
 
 
 def format_workout(record: dict[str, Any]) -> dict[str, Any]:
@@ -136,7 +139,11 @@ def process_health_data(client: InfluxDBClient) -> None:
     context = etree.iterparse(export_file,recover=True)
     for _, elem in context:
         if elem.tag == "Record":
-            records.append(format_record(elem))
+            rec = format_record(elem)
+            if isinstance(rec,list):
+                records += rec
+            else:
+                records.append(format_record(elem))
             elem.clear()
         elif elem.tag == "Workout":
             records.append(format_workout(elem))
