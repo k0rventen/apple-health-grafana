@@ -32,10 +32,19 @@ jobs:
         name: Inject slug/short variables
         uses: rlespinasse/github-slug-action@v4
       -
-        name: Docker build & push
+        name: grafana - docker build & push
+        uses: docker/build-push-action@v4
+        with:
+          context: ./grafana
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ github.repository }}-grafana:${{ env.GITHUB_REF_SLUG }}
+      -
+        name: ingester - docker build & push
         uses: docker/build-push-action@v4
         with:
           context: ./ingester
           push: true
           platforms: linux/amd64,linux/arm64
           tags: ${{ github.repository }}-ingester:${{ env.GITHUB_REF_SLUG }}
+ 

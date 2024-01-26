@@ -1,5 +1,7 @@
 version: "3"
 services:
+  grafana:
+    build: ../grafana
   influx:
     image: influxdb:1.8
     restart: always
