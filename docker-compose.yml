@@ -1,7 +1,7 @@
 version: "3"
 services:
   grafana:
-    image: grafana/grafana:10.2.2
+    image: grafana/grafana:10.3.1
     ports:
     - 3000:3000
     environment:
@@ -12,7 +12,6 @@ services:
     - ./provisioning:/etc/grafana/provisioning
   influx:
     image: influxdb:1.8
-    restart: always
     environment:
       - INFLUXDB_DB=health
     volumes:
