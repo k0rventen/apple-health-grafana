@@ -149,9 +149,9 @@ def process_health_data(client: InfluxDBClient) -> None:
             records.append(format_workout(elem))
             elem.clear()
 
-        # batch push every 10000
-        if len(records) == 10000:
-            total_count += 10000
+        # batch push every ~10000
+        if len(records) >= 10000:
+            total_count += len(records)
             client.write_points(records, time_precision="s")
 
             del records
