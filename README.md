@@ -4,6 +4,7 @@ Tool to import your Apple Health Data in Influx and visualize them in Grafana.
 
 ![metrics](example1.png)
 ![routes](example2.png)
+![sleep](example3.png)
 
 ## Export your Apple health Data
 
@@ -99,7 +100,7 @@ You should see some graphs with metrics in them.
 - a generic one displaying every metric available, 
 - a more refined one for specific metrics that are probably present , like walking distance, hearth related metrics..
 - a workout routes one, that shows a GPS map of your outdoor routes (walking/running/biking).
-
+- a sleep tracking dashboard, that displays how much time/percentage is spent in each sleep category.
 
 ## Tips on further analyzing the data
 
