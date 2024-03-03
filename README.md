@@ -4,6 +4,7 @@ Tool to import your Apple Health Data in Influx and visualize them in Grafana.
 
 ![metrics](example1.png)
 ![routes](example2.png)
+![sleep](example3.png)
 
 ## Export your Apple health Data
 
