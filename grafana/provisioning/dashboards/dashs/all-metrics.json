@@ -54,6 +54,7 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -67,6 +68,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -96,7 +98,8 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unitScale": true
         },
         "overrides": []
       },
@@ -184,8 +187,8 @@
       "type": "timeseries"
     }
   ],
-  "schemaVersion": 37,
-  "style": "dark",
+  "refresh": "",
+  "schemaVersion": 39,
   "tags": [],
   "templating": {
     "list": [
@@ -226,13 +229,13 @@
           "type": "influxdb",
           "uid": "influx"
         },
-        "definition": "show tag values from StepCount with key=device",
+        "definition": "show tag values from \"data-sources\" with key=device",
         "hide": 0,
         "includeAll": true,
         "multi": true,
         "name": "device",
         "options": [],
-        "query": "show tag values from StepCount with key=device",
+        "query": "show tag values from \"data-sources\" with key=device",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
