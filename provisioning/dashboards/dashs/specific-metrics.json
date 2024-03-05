@@ -74,7 +74,8 @@
                 "value": 100000
               }
             ]
-          }
+          },
+          "unitScale": true
         },
         "overrides": []
       },
@@ -97,9 +98,11 @@
           "fields": "",
           "values": false
         },
-        "textMode": "value_and_name"
+        "showPercentChange": false,
+        "textMode": "value_and_name",
+        "wideLayout": true
       },
-      "pluginVersion": "9.5.3",
+      "pluginVersion": "10.3.3",
       "targets": [
         {
           "alias": "Cycled distance this year ($tag_unit)",
@@ -351,6 +354,7 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -364,6 +368,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "smooth",
             "lineWidth": 2,
             "pointSize": 5,
@@ -394,7 +399,8 @@
               }
             ]
           },
-          "unit": "lengthkm"
+          "unit": "lengthkm",
+          "unitScale": true
         },
         "overrides": []
       },
@@ -505,6 +511,7 @@
             "mode": "fixed"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -518,6 +525,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "smooth",
             "lineWidth": 2,
             "pointSize": 5,
@@ -548,7 +556,8 @@
               }
             ]
           },
-          "unit": "lengthkm"
+          "unit": "lengthkm",
+          "unitScale": true
         },
         "overrides": []
       },
@@ -634,6 +643,7 @@
             "mode": "fixed"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -647,6 +657,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "smooth",
             "lineWidth": 2,
             "pointSize": 5,
@@ -677,7 +688,8 @@
               }
             ]
           },
-          "unit": "m"
+          "unit": "m",
+          "unitScale": true
         },
         "overrides": []
       },
@@ -763,6 +775,7 @@
             "mode": "fixed"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -776,6 +789,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "smooth",
             "lineWidth": 2,
             "pointSize": 5,
@@ -806,7 +820,8 @@
               }
             ]
           },
-          "unit": "steps"
+          "unit": "steps",
+          "unitScale": true
         },
         "overrides": []
       },
@@ -916,6 +931,7 @@
             "mode": "fixed"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -929,6 +945,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 3,
             "pointSize": 5,
@@ -959,7 +976,8 @@
               }
             ]
           },
-          "unit": "flights"
+          "unit": "flights",
+          "unitScale": true
         },
         "overrides": []
       },
@@ -1087,8 +1105,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1337,8 +1354,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1466,8 +1482,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1607,8 +1622,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1796,8 +1810,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1974,8 +1987,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -2103,8 +2115,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -2282,8 +2293,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -2558,8 +2568,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "semi-dark-blue",
-                "value": null
+                "color": "semi-dark-blue"
               }
             ]
           }
@@ -2687,8 +2696,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -2697,7 +2705,8 @@
             ]
           },
           "unit": "s"
-        }
+        },
+        "overrides": []
       },
       "gridPos": {
         "h": 13,
@@ -2799,8 +2808,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "purple",
-                "value": null
+                "color": "purple"
               }
             ]
           },
@@ -2876,8 +2884,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "dark-blue",
-                "value": null
+                "color": "dark-blue"
               }
             ]
           },
@@ -3017,8 +3024,7 @@
     }
   ],
   "refresh": "30s",
-  "schemaVersion": 38,
-  "style": "dark",
+  "schemaVersion": 39,
   "tags": [],
   "templating": {
     "list": [
@@ -3036,13 +3042,13 @@
           "type": "influxdb",
           "uid": "influx"
         },
-        "definition": "show tag values from StepCount with key=device",
+        "definition": "show tag values from \"data-sources\" with key=device",
         "hide": 0,
         "includeAll": true,
         "multi": true,
         "name": "source",
         "options": [],
-        "query": "show tag values from StepCount with key=device",
+        "query": "show tag values from \"data-sources\" with key=device",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
@@ -3059,6 +3065,6 @@
   "timezone": "",
   "title": "Apple health specific metrics",
   "uid": "specific-metrics",
-  "version": 4,
+  "version": 5,
   "weekStart": ""
 }
