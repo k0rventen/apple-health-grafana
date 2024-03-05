@@ -6,9 +6,8 @@ import os
 import re
 import time
 from lxml import etree
-from datetime import datetime as dt
 from shutil import unpack_archive
-from typing import Any, Union
+from typing import Any
 import subprocess
 
 from formatters import parse_date_as_timestamp, parse_float_with_try, AppleStandHourFormatter, SleepAnalysisFormatter
@@ -21,6 +20,8 @@ ZIP_PATH = "/export.zip"
 ROUTES_PATH = "/export/apple_health_export/workout-routes/"
 EXPORT_PATH = "/export/apple_health_export"
 EXPORT_XML_REGEX = re.compile("export.xml",re.IGNORECASE)
+
+points_sources = set()
 
 def format_route_point(
     name: str, point: GPXTrackPoint, next_point=None
@@ -138,17 +139,15 @@ def process_health_data(client: InfluxDBClient) -> None:
     total_count = 0
     context = etree.iterparse(export_file,recover=True)
     for _, elem in context:
+        
+        points_sources.add(elem.get("sourceName", "unknown"))
+
         if elem.tag == "Record":
             rec = format_record(elem)
-            if isinstance(rec,list):
-                records += rec
-            else:
-                records.append(format_record(elem))
-            elem.clear()
+            records += rec
         elif elem.tag == "Workout":
             records.append(format_workout(elem))
-            elem.clear()
-
+        elem.clear()
         # batch push every ~10000
         if len(records) >= 10000:
             total_count += len(records)
@@ -162,6 +161,15 @@ def process_health_data(client: InfluxDBClient) -> None:
     client.write_points(records, time_precision="s")
     print("Total number of records:", total_count + len(records))
 
+def push_sources(client: InfluxDBClient):
+    sources_points = [{
+        "measurement": "data-sources",
+        "tags": {"device": s},
+        "fields":{"value":1}
+    }
+    for s in points_sources]
+    print("pushing",len(sources_points),"sources !")
+    client.write_points(sources_points,time_precision="s")
 
 if __name__ == "__main__":
     print("Unzipping the export file...")
@@ -187,4 +195,5 @@ if __name__ == "__main__":
 
     process_workout_routes(client)
     process_health_data(client)
+    push_sources(client)
     print("All done! You can now check grafana.")

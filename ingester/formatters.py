@@ -19,18 +19,18 @@ def parse_date_as_timestamp(v: Any) -> int:
     return int(dt.fromisoformat(v).timestamp())
 
 
-def AppleStandHourFormatter(record: dict) -> dict:
+def AppleStandHourFormatter(record: dict) -> list:
     date = parse_date_as_timestamp(record.get("startDate", 0))
     unit = record.get("unit", "unit")
     device = record.get("sourceName", "unknown")
     value = 1 if record.get("value") == "HKCategoryValueAppleStandHourStood" else 0
 
-    return {
+    return [{
         "measurement": "AppleStandHour",
         "time": date,
         "fields": {"value": value},
         "tags": {"unit": unit, "device": device},
-    }
+    }]
 
 
 sleep_states_lookup={
