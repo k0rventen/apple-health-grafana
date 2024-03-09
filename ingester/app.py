@@ -185,7 +185,7 @@ if __name__ == "__main__":
     # Get environment variables
     influx_token = os.environ.get("INFLUX_TOKEN")
     influx_org = os.environ.get("INFLUX_ORG")
-    influx_bucket = os.environ.get("INFLUX_BUCKET")
+    bucket = os.environ.get("INFLUX_BUCKET")
 
     # Create InfluxDB client
     client = InfluxDBClient(url="http://influx:8086", token=influx_token, org=influx_org)
@@ -199,7 +199,7 @@ if __name__ == "__main__":
             print("Waiting on influx to be ready..")
             time.sleep(1)
 
-    process_workout_routes(client, influx_bucket)
-    process_health_data(client, influx_bucket)
-    push_sources(client, influx_bucket)
+    process_workout_routes(client, bucket)
+    process_health_data(client, bucket)
+    push_sources(client, bucket)
     print("All done! You can now check grafana.")
