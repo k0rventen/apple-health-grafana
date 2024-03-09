@@ -93,7 +93,7 @@ def format_workout(record: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def parse_workout_route(client: InfluxDBClient, route_xml_file: str) -> None:
+def parse_workout_route(client: InfluxDBClient, bucket: str, route_xml_file: str) -> None:
     with open(route_xml_file, "r") as gpx_file:
         gpx = gpxpy.parse(gpx_file)
         for track in gpx.tracks:
@@ -112,7 +112,7 @@ def parse_workout_route(client: InfluxDBClient, route_xml_file: str) -> None:
             client.write_points(track_points, time_precision="s")
 
 
-def process_workout_routes(client: InfluxDBClient) -> None:
+def process_workout_routes(client: InfluxDBClient, bucket: str) -> None:
     if os.path.exists(ROUTES_PATH) and os.path.isdir(ROUTES_PATH):
         print("Loading workout routes ...")
         for file in os.listdir(ROUTES_PATH):
