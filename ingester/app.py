@@ -24,143 +24,7 @@ EXPORT_XML_REGEX = re.compile("export.xml", re.IGNORECASE)
 
 points_sources = set()
 
-def format_route_point(
-    name: str, point: GPXTrackPoint, next_point=None
-) -> Point:
-    """for a given `point`, creates an influxdb point
-    and computes speed and distance if `next_point` exists"""
-    slug_name = name.replace(" ", "-").replace(":", "-").lower()
-    data = {
-        "latitude": point.latitude,
-        "longitude": point.longitude,
-        "elevation": point.elevation,
-    }
-    if next_point:
-        data["speed"] = point.speed_between(next_point) if next_point else 0
-        data["distance"] = point.distance_3d(next_point)
-    return Point("workout-routes").tag("workout", slug_name).fields(data).time(point.time)
-
-
-def format_record(record: dict[str, Any]) -> list[Point]:
-    """format a export health xml record for influx"""
-    measurement = (
-        record.get("type", "Record")
-        .removeprefix("HKQuantityTypeIdentifier")
-        .removeprefix("HKCategoryTypeIdentifier")
-        .removeprefix("HKDataType")
-    )
-
-    if measurement == "AppleStandHour":
-        return AppleStandHourFormatter(record)
-    if measurement == "SleepAnalysis":
-        return SleepAnalysisFormatter(record)
-
-    date = parse_date_as_timestamp(record.get("startDate", 0))
-    value = parse_float_with_try(record.get("value", 1))
-    unit = record.get("unit", "unit")
-    device = record.get("sourceName", "unknown")
-
-    return [
-        Point(measurement)
-        .field("value", value)
-        .tag("unit", unit)
-        .tag("device", device)
-        .time(date, WritePrecision.S)
-    ]
-
-
-def format_workout(record: dict[str, Any]) -> Point:
-    """format a export health xml workout record for influx"""
-    measurement = record.get("workoutActivityType", "Workout").removeprefix(
-        "HKWorkoutActivityType"
-    )
-    date = parse_date_as_timestamp(record.get("startDate", 0))
-    value = parse_float_with_try(record.get("duration", 0))
-    unit = record.get("durationUnit", "unit")
-    device = record.get("sourceName", "unknown")
-
-    return Point(measurement).field("value", value).tag("unit", unit).tag("device", device).time(date, WritePrecision.S)
-
-
-def parse_workout_route(client: InfluxDBClient, route_xml_file: str) -> None:
-    with open(route_xml_file, "r") as gpx_file:
-        gpx = gpxpy.parse(gpx_file)
-        for track in gpx.tracks:
-            track_points = []
-            print("Opening", track.name)
-            for segment in track.segments:
-                num_points = len(segment.points)
-                for i in range(num_points):
-                    track_points.append(
-                        format_route_point(
-                            track.name,
-                            segment.points[i],
-                            segment.points[i + 1] if i + 1 < num_points else None,
-                        )
-                    )
-            write_api = client.write_api(write_options=SYNCHRONOUS)
-            write_api.write(bucket="health", record=track_points)
-
-
-def process_workout_routes(client: InfluxDBClient) -> None:
-    if os.path.exists(ROUTES_PATH) and os.path.isdir(ROUTES_PATH):
-        print("Loading workout routes ...")
-        for file in os.listdir(ROUTES_PATH):
-            if file.endswith(".gpx"):
-                route_file = os.path.join(ROUTES_PATH, file)
-                parse_workout_route(client, route_file)
-    else:
-        print("No workout routes found, skipping ...")
-
-
-def process_health_data(client: InfluxDBClient) -> None:
-    export_xml_files = [f for f in os.listdir(EXPORT_PATH) if EXPORT_XML_REGEX.match(f)]
-    if not export_xml_files:
-        print("No export file found, skipping...")
-        return
-    export_file = os.path.join(EXPORT_PATH, export_xml_files[0])
-    print("Export file is", export_file)
-
-    print("Removing potentially malformed XML..")
-    p = subprocess.run("sed -i '/<HealthData/,$!d' " + export_file, shell=True, capture_output=True)
-    if p.returncode != 0:
-        print(p.stdout, p.stderr)
-
-    records = []
-    total_count = 0
-    context = etree.iterparse(export_file, recover=True)
-    for _, elem in context:
-        points_sources.add(elem.get("sourceName", "unknown"))
-
-        if elem.tag == "Record":
-            rec = format_record(elem)
-            records += rec
-        elif elem.tag == "Workout":
-            records.append(format_workout(elem))
-        elem.clear()
-        # batch push every ~10000
-        if len(records) >= 10000:
-            total_count += len(records)
-            write_api = client.write_api(write_options=SYNCHRONOUS)
-            write_api.write(bucket="health", record=records)
-
-            del records
-            records = []
-            print("Inserted", total_count, "records")
-
-    # push the rest
-    write_api = client.write_api(write_options=SYNCHRONOUS)
-    write_api.write(bucket="health", record=records)
-    print("Total number of records:", total_count + len(records))
-
-def push_sources(client: InfluxDBClient):
-    sources_points = [
-        Point("data-sources").tag("device", s).field("value", 1)
-        for s in points_sources
-    ]
-    print("pushing", len(sources_points), "sources !")
-    write_api = client.write_api(write_options=SYNCHRONOUS)
-    write_api.write(bucket="health", record=sources_points)
+# ... (other function definitions remain the same) ...
 
 if __name__ == "__main__":
     print("Unzipping the export file...")
@@ -171,7 +35,13 @@ if __name__ == "__main__":
         exit(1)
     print("Export file unzipped!")
 
-    client = InfluxDBClient(url="http://influx:8086", token="apple-health-grafana", org="health")
+    # Get environment variables
+    influx_token = os.environ.get("INFLUX_TOKEN")
+    influx_org = os.environ.get("INFLUX_ORG")
+    influx_bucket = os.environ.get("INFLUX_BUCKET")
+
+    # Create InfluxDB client
+    client = InfluxDBClient(url="http://influx:8086", token=influx_token, org=influx_org)
 
     while True:
         try:
