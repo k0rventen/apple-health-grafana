@@ -187,7 +187,6 @@ if __name__ == "__main__":
     # Create InfluxDB client
     client = InfluxDBClient(url="http://influx:8086", token=influx_token, org=influx_org)
     write_api = client.write_api(write_options=SYNCHRONOUS)
-    query_api = client.query_api(
 
     while True:
         try:
