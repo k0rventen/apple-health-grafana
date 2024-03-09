@@ -109,8 +109,7 @@ def parse_workout_route(client: InfluxDBClient, bucket: str, route_xml_file: str
                             segment.points[i + 1] if i + 1 < num_points else None,
                         )
                     )
-            write_api = client.write_api(write_options=SYNCHRONOUS)
-            write_api.write(bucket, record=track_points, time_precision="s")
+            write_api.write(bucket=bucket, record=track_points, time_precision="s")
 
 
 def process_workout_routes(client: InfluxDBClient, bucket: str) -> None:
@@ -160,8 +159,7 @@ def process_health_data(client: InfluxDBClient, bucket: str) -> None:
             print("Inserted", total_count, "records")
 
     # write the rest
-    write_api = client.write_api(write_options=SYNCHRONOUS)
-    write_api.write(bucket, record=records)
+    write_api.write(bucket=bucket, record=records)
     print("Total number of records:", total_count + len(records))
 
 def push_sources(client: InfluxDBClient, bucket: str):
@@ -170,8 +168,7 @@ def push_sources(client: InfluxDBClient, bucket: str):
         for s in points_sources
     ]
     print("pushing", len(sources_points), "sources !")
-    write_api = client.write_api(write_options=SYNCHRONOUS)
-    write_api.write(bucket, record=sources_points)
+    write_api.write(bucket=bucket, record=sources_points)
 
 if __name__ == "__main__":
     print("Unzipping the export file...")
@@ -189,6 +186,8 @@ if __name__ == "__main__":
 
     # Create InfluxDB client
     client = InfluxDBClient(url="http://influx:8086", token=influx_token, org=influx_org)
+    write_api = client.write_api(write_options=SYNCHRONOUS)
+    query_api = client.query_api(
 
     while True:
         try:
