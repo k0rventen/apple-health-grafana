@@ -8,6 +8,9 @@ services:
       - INFLUX_TOKEN=my-token
       - INFLUX_ORG=my-org
       - INFLUX_BUCKET=my-bucket
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=health
       - DOCKER_INFLUXDB_INIT_ORG=my-org
       - DOCKER_INFLUXDB_INIT_BUCKET=my-bucket
       - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=my-token
