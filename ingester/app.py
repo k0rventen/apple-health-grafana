@@ -109,7 +109,8 @@ def parse_workout_route(client: InfluxDBClient, bucket: str, route_xml_file: str
                             segment.points[i + 1] if i + 1 < num_points else None,
                         )
                     )
-            client.write_points(track_points, time_precision="s")
+            write_api = client.write_api(write_options=SYNCHRONOUS)
+            write_api.write(bucket=bucket, record=track_points, time_precision="s")
 
 
 def process_workout_routes(client: InfluxDBClient, bucket: str) -> None:
