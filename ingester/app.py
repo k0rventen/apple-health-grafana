@@ -93,7 +93,7 @@ def format_workout(record: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def parse_workout_route(client: InfluxDBClient, bucket_name: str, route_xml_file: str) -> None:
+def parse_workout_route(client: InfluxDBClient, bucket_name: bucket, route_xml_file: str) -> None:
     with open(route_xml_file, "r") as gpx_file:
         gpx = gpxpy.parse(gpx_file)
         for track in gpx.tracks:
@@ -110,10 +110,10 @@ def parse_workout_route(client: InfluxDBClient, bucket_name: str, route_xml_file
                         )
                     )
             write_api = client.write_api(write_options=SYNCHRONOUS)
-            write_api.write(bucket_name=bucket, record=track_points, time_precision="s")
+            write_api.write(bucket_name, record=track_points, time_precision="s")
 
 
-def process_workout_routes(client: InfluxDBClient, bucket_name: str) -> None:
+def process_workout_routes(client: InfluxDBClient, bucket_name:bucket) -> None:
     if os.path.exists(ROUTES_PATH) and os.path.isdir(ROUTES_PATH):
         print("Loading workout routes ...")
         for file in os.listdir(ROUTES_PATH):
@@ -124,7 +124,7 @@ def process_workout_routes(client: InfluxDBClient, bucket_name: str) -> None:
         print("No workout routes found, skipping ...")
 
 
-def process_health_data(client: InfluxDBClient, bucket_nume: str) -> None:
+def process_health_data(client: InfluxDBClient, bucket_nume: bucket) -> None:
     export_xml_files = [f for f in os.listdir(EXPORT_PATH) if EXPORT_XML_REGEX.match(f)]
     if not export_xml_files:
         print("No export file found, skipping...")
@@ -153,7 +153,7 @@ def process_health_data(client: InfluxDBClient, bucket_nume: str) -> None:
         if len(records) >= 10000:
             total_count += len(records)
             write_api = client.write_api(write_options=SYNCHRONOUS)
-            write_api.write(bucket_name=bucket, record=records)
+            write_api.write(bucket_name, record=records)
 
             del records
             records = []
@@ -161,17 +161,17 @@ def process_health_data(client: InfluxDBClient, bucket_nume: str) -> None:
 
     # write the rest
     write_api = client.write_api(write_options=SYNCHRONOUS)
-    write_api.write(bucket_name=bucket, record=records)
+    write_api.write(bucket_name, record=records)
     print("Total number of records:", total_count + len(records))
 
-def push_sources(client: InfluxDBClient, bucket_name: str):
+def push_sources(client: InfluxDBClient, bucket_name: bucket):
     sources_points = [
         Point("data-sources").tag("device", s).field("value", 1)
         for s in points_sources
     ]
     print("pushing", len(sources_points), "sources !")
     write_api = client.write_api(write_options=SYNCHRONOUS)
-    write_api.write(bucket_name=bucket, record=sources_points)
+    write_api.write(bucket_name, record=sources_points)
 
 if __name__ == "__main__":
     print("Unzipping the export file...")
