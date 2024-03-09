@@ -8,6 +8,8 @@ services:
       - INFLUX_TOKEN=my-token
       - INFLUX_ORG=my-org
       - INFLUX_BUCKET=my-bucket
+      - INFLUXDB_INIT_USERNAME=admin
+      - INFLUXDB_INIT_PASSWORD=health
 
   # test the parsing of routes with an export.xml file
   test-ingester-std:
