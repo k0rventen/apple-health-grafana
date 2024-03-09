@@ -118,7 +118,7 @@ def process_workout_routes(client: InfluxDBClient, bucket: str) -> None:
         for file in os.listdir(ROUTES_PATH):
             if file.endswith(".gpx"):
                 route_file = os.path.join(ROUTES_PATH, file)
-                parse_workout_route(client, route_file)
+                parse_workout_route(client,bucket,route_file)
     else:
         print("No workout routes found, skipping ...")
 
