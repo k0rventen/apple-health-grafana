@@ -24,7 +24,31 @@ EXPORT_XML_REGEX = re.compile("export.xml", re.IGNORECASE)
 
 points_sources = set()
 
-# ... (other function definitions remain the same) ...
+def format_route_point(
+    return datapoint
+
+
+def format_record(record: dict[str, Any]) -> dict[str, Any]:
+    }]
+
+
+def format_workout(record: dict[str, Any]) -> dict[str, Any]:
+    }
+
+
+def parse_workout_route(client: InfluxDBClient, route_xml_file: str) -> None:
+            client.write_points(track_points, time_precision="s")
+
+
+def process_workout_routes(client: InfluxDBClient) -> None:
+        print("No workout routes found, skipping ...")
+
+
+def process_health_data(client: InfluxDBClient) -> None:
+    print("Total number of records:", total_count + len(records))
+
+def push_sources(client: InfluxDBClient):
+    client.write_points(sources_points,time_precision="s")
 
 if __name__ == "__main__":
     print("Unzipping the export file...")
