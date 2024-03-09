@@ -22,7 +22,7 @@ services:
       - DOCKER_INFLUXDB_INIT_USERNAME=admin
       - DOCKER_INFLUXDB_INIT_PASSWORD=health
       - DOCKER_INFLUXDB_INIT_ORG=my-org
-      - DOCKER_INFLUXDB_INIT_BUCKET=health
+      - DOCKER_INFLUXDB_INIT_BUCKET=my-bucket
       - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=my-token
     volumes:
       - ./influx-data:/var/lib/influxdb2
@@ -34,3 +34,4 @@ services:
     environment:
       - INFLUX_TOKEN=my-token
       - INFLUX_ORG=my-org
+      - INFLUX_BUCKET=my-bucket
