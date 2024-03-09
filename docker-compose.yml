@@ -1,26 +1,36 @@
 version: "3"
+
 services:
+
   grafana:
     image: grafana/grafana:10.3.3
     ports:
-    - 3000:3000
+      - 3000:3000
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=health
       - GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/etc/grafana/provisioning/dashboards/dashs/specific-metrics.json
     volumes:
-    - ./provisioning:/etc/grafana/provisioning
+      - ./provisioning:/etc/grafana/provisioning
+
   influx:
-    image: influxdb:1.8
+    image: influxdb:2.6
+    ports:
+      - 8086:8086
     environment:
-      - INFLUXDB_DB=health
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=health
+      - DOCKER_INFLUXDB_INIT_ORG=my-org
+      - DOCKER_INFLUXDB_INIT_BUCKET=health
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=my-token
     volumes:
-    - influx-data:/var/lib/influxdb
+      - ./influx-data:/var/lib/influxdb2
+
   ingester:
     image: k0rventen/apple-health-grafana-ingester
-    #build: ./ingester
     volumes:
-    - <local_path_to_export.zip>:/export.zip
-
-volumes:
-  influx-data:
+      - ./apple_export/export.zip>:/export.zip
+    environment:
+      - INFLUX_TOKEN=my-token
+      - INFLUX_ORG=my-org
