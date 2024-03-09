@@ -14,12 +14,13 @@ from formatters import parse_date_as_timestamp, parse_float_with_try, AppleStand
 
 import gpxpy
 from gpxpy.gpx import GPXTrackPoint
-from influxdb import InfluxDBClient
+from influxdb_client import InfluxDBClient, Point, WritePrecision
+from influxdb_client.client.write_api import SYNCHRONOUS
 
 ZIP_PATH = "/export.zip"
 ROUTES_PATH = "/export/apple_health_export/workout-routes/"
 EXPORT_PATH = "/export/apple_health_export"
-EXPORT_XML_REGEX = re.compile("export.xml",re.IGNORECASE)
+EXPORT_XML_REGEX = re.compile("export.xml", re.IGNORECASE)
 
 points_sources = set()
 
@@ -92,7 +93,7 @@ def format_workout(record: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def parse_workout_route(client: InfluxDBClient, route_xml_file: str) -> None:
+def parse_workout_route(client: InfluxDBClient, bucket: str, route_xml_file: str) -> None:
     with open(route_xml_file, "r") as gpx_file:
         gpx = gpxpy.parse(gpx_file)
         for track in gpx.tracks:
@@ -108,38 +109,37 @@ def parse_workout_route(client: InfluxDBClient, route_xml_file: str) -> None:
                             segment.points[i + 1] if i + 1 < num_points else None,
                         )
                     )
-            client.write_points(track_points, time_precision="s")
+            write_api.write(bucket=bucket, record=track_points, time_precision="s")
 
 
-def process_workout_routes(client: InfluxDBClient) -> None:
+def process_workout_routes(client: InfluxDBClient, bucket: str) -> None:
     if os.path.exists(ROUTES_PATH) and os.path.isdir(ROUTES_PATH):
         print("Loading workout routes ...")
         for file in os.listdir(ROUTES_PATH):
             if file.endswith(".gpx"):
                 route_file = os.path.join(ROUTES_PATH, file)
-                parse_workout_route(client, route_file)
+                parse_workout_route(client,bucket,route_file)
     else:
         print("No workout routes found, skipping ...")
 
 
-def process_health_data(client: InfluxDBClient) -> None:
+def process_health_data(client: InfluxDBClient, bucket: str) -> None:
     export_xml_files = [f for f in os.listdir(EXPORT_PATH) if EXPORT_XML_REGEX.match(f)]
     if not export_xml_files:
         print("No export file found, skipping...")
         return
-    export_file = os.path.join(EXPORT_PATH,export_xml_files[0])
-    print("Export file is",export_file)
+    export_file = os.path.join(EXPORT_PATH, export_xml_files[0])
+    print("Export file is", export_file)
 
     print("Removing potentially malformed XML..")
-    p = subprocess.run("sed -i '/<HealthData/,$!d' "+export_file,shell=True,capture_output=True)
+    p = subprocess.run("sed -i '/<HealthData/,$!d' " + export_file, shell=True, capture_output=True)
     if p.returncode != 0:
-        print(p.stdout,p.stderr)
+        print(p.stdout, p.stderr)
 
     records = []
     total_count = 0
-    context = etree.iterparse(export_file,recover=True)
+    context = etree.iterparse(export_file, recover=True)
     for _, elem in context:
-        
         points_sources.add(elem.get("sourceName", "unknown"))
 
         if elem.tag == "Record":
@@ -148,28 +148,27 @@ def process_health_data(client: InfluxDBClient) -> None:
         elif elem.tag == "Workout":
             records.append(format_workout(elem))
         elem.clear()
-        # batch push every ~10000
+        # batch write every ~10000
         if len(records) >= 10000:
             total_count += len(records)
-            client.write_points(records, time_precision="s")
+            write_api = client.write_api(write_options=SYNCHRONOUS)
+            write_api.write(bucket, record=records)
 
             del records
             records = []
             print("Inserted", total_count, "records")
 
-    # push the rest
-    client.write_points(records, time_precision="s")
+    # write the rest
+    write_api.write(bucket=bucket, record=records)
     print("Total number of records:", total_count + len(records))
 
-def push_sources(client: InfluxDBClient):
-    sources_points = [{
-        "measurement": "data-sources",
-        "tags": {"device": s},
-        "fields":{"value":1}
-    }
-    for s in points_sources]
-    print("pushing",len(sources_points),"sources !")
-    client.write_points(sources_points,time_precision="s")
+def push_sources(client: InfluxDBClient, bucket: str):
+    sources_points = [
+        Point("data-sources").tag("device", s).field("value", 1)
+        for s in points_sources
+    ]
+    print("pushing", len(sources_points), "sources !")
+    write_api.write(bucket=bucket, record=sources_points)
 
 if __name__ == "__main__":
     print("Unzipping the export file...")
@@ -180,20 +179,25 @@ if __name__ == "__main__":
         exit(1)
     print("Export file unzipped!")
 
-    client = InfluxDBClient("influx", 8086, database="health")
+    # Get environment variables
+    influx_token = os.environ.get("INFLUX_TOKEN")
+    influx_org = os.environ.get("INFLUX_ORG")
+    bucket = os.environ.get("INFLUX_BUCKET")
+
+    # Create InfluxDB client
+    client = InfluxDBClient(url="http://influx:8086", token=influx_token, org=influx_org)
+    write_api = client.write_api(write_options=SYNCHRONOUS)
 
     while True:
         try:
-            client.ping()
-            client.drop_database("health")
-            client.create_database("health")
+            client.health()
             print("Influx is ready.")
             break
         except Exception:
             print("Waiting on influx to be ready..")
             time.sleep(1)
 
-    process_workout_routes(client)
-    process_health_data(client)
-    push_sources(client)
+    process_workout_routes(client, bucket)
+    process_health_data(client, bucket)
+    push_sources(client, bucket)
     print("All done! You can now check grafana.")

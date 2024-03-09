@@ -39,7 +39,7 @@ Change the following line in the `docker-compose.yml`:
 
 ```yaml
     volumes:
-    - <local_path_to_export.zip>:/export.zip
+    - ./apple_export/export.zip:/export.zip
 ```
 
 by replacing the `<local_path_to_export.zip>` with your actual health data export file path from the previous step, eg __/home/me/downloads/export.zip__:

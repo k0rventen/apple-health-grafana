@@ -1,10 +1,21 @@
 version: "3"
 services:
   influx:
-    image: influxdb:1.8
-    restart: always
+    image: influxdb:2.6
+    ports:
+      - 8086:8086
     environment:
-      - INFLUXDB_DB=health
+      - INFLUX_TOKEN=my-token
+      - INFLUX_ORG=my-org
+      - INFLUX_BUCKET=my-bucket
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=health
+      - DOCKER_INFLUXDB_INIT_ORG=my-org
+      - DOCKER_INFLUXDB_INIT_BUCKET=my-bucket
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=my-token
+    volumes:
+      - ./influx-data:/var/lib/influxdb2
 
   # test the parsing of routes with an export.xml file
   test-ingester-std:
