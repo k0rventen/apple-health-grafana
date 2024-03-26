@@ -19,7 +19,7 @@ from influxdb import InfluxDBClient
 ZIP_PATH = "/export.zip"
 ROUTES_PATH = "/export/apple_health_export/workout-routes/"
 EXPORT_PATH = "/export/apple_health_export"
-EXPORT_XML_REGEX = re.compile("export.xml",re.IGNORECASE)
+EXPORT_XML_REGEX = re.compile("(export|导出)\.xml",re.IGNORECASE)
 
 points_sources = set()
 
