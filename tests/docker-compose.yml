@@ -1,4 +1,3 @@
-version: "3"
 services:
   influx:
     image: influxdb:1.8
@@ -29,3 +28,9 @@ services:
     build: ../ingester
     volumes:
     - ./test-export4.zip:/export.zip
+
+  # test the parsing with a CN export.xml file
+  test-ingester-cn:
+    build: ../ingester
+    volumes:
+    - ./test-export-cn.zip:/export.zip
