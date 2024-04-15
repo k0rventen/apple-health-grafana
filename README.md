@@ -2,9 +2,12 @@
 
 Tool to import your Apple Health Data in Influx and visualize them in Grafana.
 
-![metrics](example1.png)
-![routes](example2.png)
-![sleep](example3.png)
+- ### Overall Fitness / energy / activity dashboard 
+  ![metrics](example1.png)
+- ### Workout Routes:
+  ![routes](example2.png)
+- ### Sleep tracking:
+  ![sleep](example3.png)
 
 ## Export your Apple health Data
 
@@ -22,6 +25,8 @@ You can export all of your health and fitness data from Health in XML format, wh
 ```
 
 This will create a .zip file that can be shared from the iPhone via Airdrop, messages, mail and so on.
+
+_Note: If you encounter a 'Could not export data' message, increase the Auto-Lock timer of your iPhone (Settings>Display & Brightness) then try again._
 
 Once you've copied/shared the file to your computer, note the path of the file (can be something like /home/me/downloads/export.zip)
 
