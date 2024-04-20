@@ -2,7 +2,7 @@
 
 Tool to import your Apple Health Data in Influx and visualize them in Grafana.
 
-- ### Overall Fitness / energy / activity dashboard 
+- ### Overall Fitness / Energy / Activity dashboard 
   ![metrics](example1.png)
 - ### Workout Routes:
   ![routes](example2.png)
@@ -34,10 +34,17 @@ Once you've copied/shared the file to your computer, note the path of the file (
 
 You'll need docker and docker-compose installed.
 
-Clone the repo:
+Grab the compose file:
 
 ```sh
-git clone https://github.com/k0rventen/apple-health-grafana.git
+# wget
+wget https://raw.githubusercontent.com/k0rventen/apple-health-grafana/main/docker-compose.yml
+
+# curl
+curl -sfLo docker-compose.yml https://raw.githubusercontent.com/k0rventen/apple-health-grafana/main/docker-compose.yml
+
+# httpie
+https --download https://raw.githubusercontent.com/k0rventen/apple-health-grafana/main/docker-compose.yml
 ```
 
 Change the following line in the `docker-compose.yml`:
@@ -64,10 +71,7 @@ you can also use a relative path (assuming you are in the same directory as the 
 
 Then simply run :
 
-```
-# download or upgrade the images (especially if you've already used the project)
-docker-compose pull
-
+```sh
 # start grafana and influx in the background
 docker-compose up -d grafana influx
 
