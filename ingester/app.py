@@ -61,7 +61,7 @@ def format_record(record: dict[str, Any]) -> dict[str, Any]:
     if measurement == "SleepAnalysis":
         return SleepAnalysisFormatter(record)
 
-    date = parse_date_as_timestamp(record.get("startDate", 0))
+    date = parse_date_as_timestamp(record.get("startDate", "2024-01-01T01:01:01"))
     value = parse_float_with_try(record.get("value", 1))
     unit = record.get("unit", "unit")
     device = record.get("sourceName", "unknown")
@@ -79,7 +79,7 @@ def format_workout(record: dict[str, Any]) -> dict[str, Any]:
     measurement = record.get("workoutActivityType", "Workout").removeprefix(
         "HKWorkoutActivityType"
     )
-    date = parse_date_as_timestamp(record.get("startDate", 0))
+    date = parse_date_as_timestamp(record.get("startDate", "2024-01-01T01:01:01"))
     value = parse_float_with_try(record.get("duration", 0))
     unit = record.get("durationUnit", "unit")
     device = record.get("sourceName", "unknown")
@@ -139,15 +139,17 @@ def process_health_data(client: InfluxDBClient) -> None:
     total_count = 0
     context = etree.iterparse(export_file,recover=True)
     for _, elem in context:
-        
-        points_sources.add(elem.get("sourceName", "unknown"))
+        try:
+            points_sources.add(elem.get("sourceName", "unknown"))
 
-        if elem.tag == "Record":
-            rec = format_record(elem)
-            records += rec
-        elif elem.tag == "Workout":
-            records.append(format_workout(elem))
-        elem.clear()
+            if elem.tag == "Record":
+                rec = format_record(elem)
+                records += rec
+            elif elem.tag == "Workout":
+                records.append(format_workout(elem))
+            elem.clear()
+        except Exception as unknown_err:
+            print(f"{etree.tostring(elem).decode('UTF-8')}: {unknown_err}")
         # batch push every ~10000
         if len(records) >= 10000:
             total_count += len(records)
