@@ -9,7 +9,8 @@ from lxml import etree
 from shutil import unpack_archive
 from typing import Any
 import subprocess
-
+from datetime import datetime as dt
+from datetime import timezone as tz
 from formatters import parse_date_as_timestamp, parse_float_with_try, AppleStandHourFormatter, SleepAnalysisFormatter
 
 import gpxpy
@@ -28,10 +29,9 @@ def format_route_point(
 ) -> dict[str, Any]:
     """for a given `point`, creates an influxdb point
     and computes speed and distance if `next_point` exists"""
-    slug_name = name.replace(" ", "-").replace(":", "-").lower()
     datapoint = {
         "measurement": "workout-routes",
-        "tags": {"workout": slug_name},
+        "tags": {"workout": name},
         "time": point.time,
         "fields": {
             "latitude": point.latitude,
@@ -95,19 +95,26 @@ def format_workout(record: dict[str, Any]) -> dict[str, Any]:
 def parse_workout_route(client: InfluxDBClient, route_xml_file: str) -> None:
     with open(route_xml_file, "r") as gpx_file:
         gpx = gpxpy.parse(gpx_file)
+
         for track in gpx.tracks:
+            workout_start_time = dt.now(tz.utc)
+            workout_end_time = dt(1970,1,1,tzinfo=tz.utc)
+            track_name = track.name.replace(" ", "-").replace(":", "-").lower()
             track_points = []
             print("Opening", track.name)
             for segment in track.segments:
                 num_points = len(segment.points)
                 for i in range(num_points):
+                    workout_start_time = min(workout_start_time,segment.points[i].time)
+                    workout_end_time = max(workout_end_time,segment.points[i].time)
                     track_points.append(
                         format_route_point(
-                            track.name,
+                            track_name,
                             segment.points[i],
                             segment.points[i + 1] if i + 1 < num_points else None,
                         )
                     )
+            track_points.append({"measurement": "workout-routes","tags": {"workout": track_name},"time": workout_start_time,"fields": {"start_time":int(workout_start_time.timestamp() *1000), "end_time":workout_end_time.isoformat()}})
             client.write_points(track_points, time_precision="s")
 
 
@@ -139,15 +146,17 @@ def process_health_data(client: InfluxDBClient) -> None:
     total_count = 0
     context = etree.iterparse(export_file,recover=True)
     for _, elem in context:
-        
-        points_sources.add(elem.get("sourceName", "unknown"))
+        try:
+            points_sources.add(elem.get("sourceName", "unknown"))
 
-        if elem.tag == "Record":
-            rec = format_record(elem)
-            records += rec
-        elif elem.tag == "Workout":
-            records.append(format_workout(elem))
-        elem.clear()
+            if elem.tag == "Record":
+                rec = format_record(elem)
+                records += rec
+            elif elem.tag == "Workout":
+                records.append(format_workout(elem))
+            elem.clear()
+        except Exception as unknown_err:
+            print(f"Error: '{unknown_err}' on record '{elem}'",)
         # batch push every ~10000
         if len(records) >= 10000:
             total_count += len(records)
