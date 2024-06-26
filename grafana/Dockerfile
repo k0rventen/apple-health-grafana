@@ -1,4 +1,4 @@
-FROM grafana/grafana:10.4.1
+FROM grafana/grafana:11.1.0
 
 ENV GF_SECURITY_ADMIN_USER=admin
 ENV GF_SECURITY_ADMIN_PASSWORD=health
