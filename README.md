@@ -98,6 +98,8 @@ Wait for a log saying that all the data have been imported.
 
 _Note: Depending on the amount of data the export has, it can take a few minutes to work through. As an example, loading nearly 3 years of data (2 millions+ data points, 200+ workout routes) on a 10th gen i5 took 2 minutes and around 11 minutes on a Raspberry Pi 4._
 
+__/!\ It's not uncommon for the export to be borked (see issues [#4](https://github.com/k0rventen/apple-health-grafana/issues/4),[#14](https://github.com/k0rventen/apple-health-grafana/issues/14),[#29](https://github.com/k0rventen/apple-health-grafana/issues/29)). Some preventive measures are in place to fix it as best as possible, but if you encounter weird errors/behavior, please try again with a new export.__
+
 
 ## Visualization and next steps
 
@@ -105,9 +107,9 @@ _Note: Depending on the amount of data the export has, it can take a few minutes
 Head to __http://localhost:3000__, and log in with the grafana creds from the compose file (defaults to `admin`:`health`).
 
 You should see some graphs with metrics in them.
-3 dashboards are created by default:
+4 dashboards are created by default:
 - a generic one displaying every metric available, 
-- a more refined one for specific metrics that are probably present , like walking distance, hearth related metrics..
+- a more refined one for specific metrics that are probably there like walking distance, hearth related metrics..
 - a workout routes one, that shows a GPS map of your outdoor routes (walking/running/biking).
 - a sleep tracking dashboard, that displays how much time/percentage is spent in each sleep category.
 
@@ -116,3 +118,19 @@ You should see some graphs with metrics in them.
 Some metrics can be displayed __as is__, but others might need tweaking in the influx request:
 - adjusting the time interval to 1d to group daily metrics.
 - using __sum()__ instead of __mean()__ to aggregate the metrics for a given interval.
+
+
+## develop
+
+Just compose is needed. Use the `-dev` spec yaml instead to build the ingester/grafana image instead of using the registry ones:
+
+```
+# launch the db 
+docker compose -f docker-compose-dev.yaml up -d influx
+
+# build and launch grafana
+docker compose -f docker-compose-dev.yaml up --build -d grafana
+
+# same with the ingester
+docker compose -f docker-compose-dev.yaml up --build ingester
+```
