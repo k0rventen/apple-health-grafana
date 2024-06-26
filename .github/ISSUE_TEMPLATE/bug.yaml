@@ -25,7 +25,7 @@ body:
     attributes:
       label: Environment 
       description: What is your OS / machine type ? 
-      placeholder: ex. Ubuntu 23.04, macOS with Apple Silicon, Windows with WSL or Docker Desktop
+      placeholder: ex. Ubuntu 23.04, macOS with Apple Silicon, Windows with WSL..
     validations:
       required: true
 
@@ -44,7 +44,7 @@ body:
     id: compose
     attributes:
       label: docker-compose.yml
-      description: Please copy and paste the content of your docker-compose.yml file
+      description: If modified, please copy and paste the content of your docker-compose.yml file
       render: shell
     validations:
       required: true
